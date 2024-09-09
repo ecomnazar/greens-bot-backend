@@ -2,7 +2,7 @@ require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const ABOUT_URL = process.env.ABOUT_URL;
+// const ABOUT_URL = process.env.ABOUT_URL;
 const IMAGE_PATH = process.env.IMAGE_PATH;
 const BASE_URL = process.env.BASE_URL;
 const APP_URL = process.env.APP_URL;
@@ -31,26 +31,31 @@ bot.onText(/\/start(.*)/, (msg, match) => {
   const options = {
     reply_markup: {
       inline_keyboard: [
-        [
-          { text: "About", url: ABOUT_URL },
-          { text: "Play", url: params },
-        ],
+        // [
+        //   { text: "About", url: ABOUT_URL },
+        // ],
+        [{ text: "Play", url: params }],
       ],
     },
   };
 
-  // Send the photo with the message and inline keyboard
   bot
     .sendPhoto(chatId, IMAGE_PATH, {
       caption: messageText,
       parse_mode: "Markdown",
       ...options,
     })
-    .then(() => {
+    .then((sentMessage) => {
       console.log(`Message sent: ${params}`);
-    })
-    .catch((err) => {
-      console.error("Error sending message:", err);
+      // Pin the message
+      bot
+        .pinChatMessage(chatId, sentMessage.message_id)
+        .then(() => {
+          console.log("Message pinned successfully");
+        })
+        .catch((err) => {
+          console.error("Error pinning message:", err);
+        });
     });
 });
 
