@@ -16,9 +16,84 @@ We are working on arena mode where you can fight each other and defend the farm.
 • collect silver coins and,
 • win cards.`;
 
+// params: url from partners
+function showButtons(messageType, chatId, userLanguage, text, params) {
+  if (messageType === "private") {
+    let buttons;
+    const chooseOption =
+      userLanguage === "ru" ? "Выберите опцию:" : "Choose option:";
+
+    if (userLanguage === "ru") {
+      buttons = [
+        [{ text: "Играть" }],
+        [{ text: "Вебсайт" }],
+        [{ text: "Канал" }],
+        [{ text: "Поддержка" }],
+      ];
+    } else {
+      buttons = [
+        [{ text: "Play" }],
+        [{ text: "Website" }],
+        [{ text: "Channel" }],
+        [{ text: "Support" }],
+      ];
+    }
+
+    if (text.startsWith("partner-")) return;
+
+    bot.sendMessage(chatId, chooseOption, {
+      reply_markup: {
+        keyboard: buttons,
+        resize_keyboard: true,
+        one_time_keyboard: false,
+      },
+    });
+
+    if (text === "Играть" || text === "Play") {
+      bot.sendMessage(chatId, "Open Greens", {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "Open",
+                url: params ? params : "http://t.me/GreensfiBot/play",
+              },
+            ],
+          ],
+        },
+      });
+    } else if (text === "Вебсайт" || text === "Website") {
+      bot.sendMessage(chatId, "Open Greens website", {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "Visit Website", url: "https://www.greensfi.com" }],
+          ],
+        },
+      });
+    } else if (text === "Канал" || text === "Channel") {
+      bot.sendMessage(chatId, "Join to Greens Telegram channel", {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "Join Channel", url: "https://t.me/greensfi" }],
+          ],
+        },
+      });
+    } else if (text === "Поддержка" || text === "Support") {
+      bot.sendMessage(chatId, "Join to Greens Support Telegram group", {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "Get Support", url: "https://t.me/+UEWpodrytbxiYTJi" }],
+          ],
+        },
+      });
+    }
+  }
+}
+
 // Listen for the '/start' command
 bot.onText(/\/start(.*)/, (msg, match) => {
   const chatId = msg.chat.id;
+  const text = msg.text;
 
   let params = match[1].trim();
 
@@ -57,6 +132,8 @@ bot.onText(/\/start(.*)/, (msg, match) => {
           console.error("Error pinning message:", err);
         });
     });
+
+  showButtons(msg.chat.type, chatId, msg.from.language_code, text, params);
 });
 
 bot.on("message", (msg) => {
@@ -84,7 +161,15 @@ bot.on("message", (msg) => {
     };
 
     fetchStatistics();
+    return;
   }
+
+  // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --          -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+  if (text.startsWith("/start")) return;
+  showButtons(msg.chat.type, chatId, msg.from.language_code, text);
+
+  // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --          -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 });
 
 console.log("Bot is running...");
