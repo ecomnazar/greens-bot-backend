@@ -9,10 +9,45 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 
+bot
+  .setMyCommands([])
+  .then(() => {
+    return bot.setMyCommands([
+      { command: "play", description: "Start game" },
+      { command: "website", description: "Visit website" },
+      { command: "channel", description: "Join channel" },
+      { command: "support", description: "Join support group" },
+      { command: "instructions", description: "Read the instructions" },
+    ]);
+  })
+  .then(() => {
+    console.log("Commands were reset and set successfully.");
+  })
+  .catch((error) => {
+    console.error("Error setting commands:", error);
+  });
+
 // Listen for the '/start' command
 bot.onText(/\/start(.*)/, (msg, match) => {
   const chatId = msg.chat.id;
   let params = match[1].trim();
+
+  bot
+    .setMyCommands([]) // Очищаем все текущие команды
+    .then(() => {
+      // Устанавливаем новые команды
+      return bot.setMyCommands([
+        { command: "start", description: "Start the bot1" },
+        { command: "help", description: "Get help using the bot" },
+        { command: "settings", description: "Adjust your settings" },
+      ]);
+    })
+    .then(() => {
+      console.log("Commands were reset and set successfully.");
+    })
+    .catch((error) => {
+      console.error("Error setting commands:", error);
+    });
 
   sendIntroductionContent(bot, params, chatId);
 });
